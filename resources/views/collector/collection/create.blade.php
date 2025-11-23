@@ -10,6 +10,7 @@
                 <h4 class="mb-0"><i class="bi bi-qr-code-scan"></i> New Collection Entry</h4>
             </div>
             <div class="card-body">
+
                 <!-- QR Code Scanner / DL Number Input -->
                 <div class="mb-4 p-4 bg-light rounded">
                     <label for="dl_no_input" class="form-label fw-bold">Scan QR Code or Enter DL Number</label>
@@ -28,10 +29,21 @@
                             <i class="bi bi-search"></i> Search
                         </button>
                     </div>
+
+                    <!-- QR Scanner Modal -->
+                    <div id="qr-reader-modal" style="display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); z-index:1050;">
+                        <div style="max-width:400px; margin:5% auto; background:#fff; border-radius:10px; padding:16px; position:relative;">
+                            <div id="qr-reader" style="width:100%;"></div>
+                            <button type="button" id="close-qr-btn" class="btn btn-danger" style="position:absolute; top:8px; right:8px;">
+                                <i class="bi bi-x-lg"></i> Close
+                            </button>
+                        </div>
+                    </div>
+
                     <small class="text-muted">Enter DL number and click Search to find party details</small>
                 </div>
 
-                <!-- Party Details (shown after search) -->
+                <!-- Party Details -->
                 @if($party)
                 <div class="alert alert-info">
                     <h5><i class="bi bi-check-circle"></i> Party Found!</h5>
@@ -119,12 +131,20 @@
     </div>
 </div>
 
+<!-- Include HTML5 QR Code library -->
+<script src="https://unpkg.com/html5-qrcode@2.3.7/minified/html5-qrcode.min.js"></script>
+
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const dlNoInput = document.getElementById('dl_no_input');
     const searchBtn = document.getElementById('search_btn');
     const scanQrBtn = document.getElementById('scan_qr_btn');
+    const qrModal = document.getElementById('qr-reader-modal');
+    const qrReader = document.getElementById('qr-reader');
+    const closeQrBtn = document.getElementById('close-qr-btn');
+
+    let html5QrCode;
 
     // Search on Enter key
     dlNoInput.addEventListener('keypress', function(e) {
@@ -134,27 +154,55 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Search button click
-    searchBtn.addEventListener('click', function() {
-        const dlNo = dlNoInput.value.trim();
-        if (dlNo) {
-            window.location.href = '{{ route("collector.collection.create") }}?dl_no=' + encodeURIComponent(dlNo);
+    // Open QR scanner modal
+    scanQrBtn.addEventListener('click', function() {
+        qrModal.style.display = 'block';
+        if (!html5QrCode) {
+            html5QrCode = new Html5Qrcode("qr-reader");
+        }
+        qrReader.innerHTML = "";
+
+        html5QrCode.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: 250 },
+            (decodedText) => {
+                dlNoInput.value = decodedText;
+                html5QrCode.stop().then(() => {
+                    qrModal.style.display = 'none';
+                    searchBtn.click();
+                }).catch(err => console.error(err));
+            }
+        ).catch(err => {
+            alert("Unable to start QR scanner: " + err);
+            qrModal.style.display = 'none';
+        });
+    });
+
+    // Close QR modal
+    closeQrBtn.addEventListener('click', function() {
+        qrModal.style.display = 'none';
+        if (html5QrCode && html5QrCode._isScanning) {
+            html5QrCode.stop().catch(()=>{});
         }
     });
 
-    // QR Code Scanner (using device camera)
-    scanQrBtn.addEventListener('click', function() {
-        // Simple implementation - you can integrate a QR scanner library like html5-qrcode
-        alert('QR Scanner: Please install a QR scanner library like html5-qrcode for full functionality. For now, you can manually enter the DL number.');
+    // Close modal on outside click
+    qrModal.addEventListener('click', function(e) {
+        if (e.target === qrModal) {
+            qrModal.style.display = 'none';
+            if (html5QrCode && html5QrCode._isScanning) {
+                html5QrCode.stop().catch(()=>{});
+            }
+        }
     });
 
-    // Auto-focus on amount field if party is found
+    // Auto-focus on amount field if party exists
     @if($party)
-        document.getElementById('amount_collected').focus();
-        document.getElementById('amount_collected').select();
+        const amountField = document.getElementById('amount_collected');
+        amountField.focus();
+        amountField.select();
     @endif
 });
 </script>
 @endpush
 @endsection
-
