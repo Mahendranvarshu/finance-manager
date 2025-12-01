@@ -35,7 +35,7 @@ Route::prefix('collector')->name('collector.')->group(function () {
     // Protected routes (require collector authentication)
     Route::middleware('auth:collector')->group(function () {
         Route::get('/dashboard', [CollectorDashboardController::class, 'index'])->name('dashboard');
-        
+        Route::resource('parties', PartyController::class);
         // Collection routes
         Route::get('/collection/create', [CollectorCollectionController::class, 'create'])->name('collection.create');
         Route::post('/collection/store', [CollectorCollectionController::class, 'store'])->name('collection.store');
