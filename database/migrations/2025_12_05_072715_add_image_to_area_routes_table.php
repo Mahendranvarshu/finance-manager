@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('area_routes', function (Blueprint $table) {
+        Schema::table('area_lines', function (Blueprint $table) {
             $table->dropColumn('image');
         });
     }
