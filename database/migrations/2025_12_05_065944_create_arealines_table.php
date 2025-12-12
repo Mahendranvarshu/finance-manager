@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('area_routes', function (Blueprint $table) {
+        Schema::create('area_lines', function (Blueprint $table) {
             $table->id();
     
             $table->string('area_name');           // Area name (Ex: Chennai, Coimbatore)
