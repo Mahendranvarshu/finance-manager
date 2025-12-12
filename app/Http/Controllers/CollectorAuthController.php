@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendEmailJob;
+use App\Mail\WelcomeMail;
 use App\Models\Collector;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
 class CollectorAuthController extends Controller
@@ -36,6 +39,7 @@ class CollectorAuthController extends Controller
         }
 
         Auth::guard('collector')->login($collector, $request->filled('remember'));
+        SendEmailJob::dispatch($collector)->delay(now()->addSeconds(30));
 
         return redirect()->route('collector.dashboard');
     }

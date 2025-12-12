@@ -14,23 +14,48 @@ Route::get('/', function () {
     return redirect()->route('dashboard');
 });
 
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/blog', function () {
+    return view('blog');
+})->name('blog');
 
-Route::resource('parties', PartyController::class);
-Route::resource('collectors', CollectorController::class);
-Route::resource('collections', CollectionController::class);
+Route::prefix('admin')->group(function () {
+    // Admin authentication routes
+    Route::get('/login', function () {
+        return view('admin.login');
+    })->name('login');
+    Route::post('/login', [\App\Http\Controllers\AuthController::class, 'login']);
+    Route::get('/logout', [\App\Http\Controllers\AuthController::class, 'logout'])->name('logout');
 
-// Reports
-Route::get('/report/daily', [ReportController::class, 'daily'])->name('report.daily');
-Route::get('/report/weekly', [ReportController::class, 'weekly'])->name('report.weekly');
-Route::get('/report/monthly', [ReportController::class, 'monthly'])->name('report.monthly');
+    Route::middleware(['auth:admin'])->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+        Route::resource('parties', PartyController::class);
+        Route::resource('collectors', CollectorController::class);
+        Route::resource('collections', CollectionController::class);
+
+        // Reports
+        Route::get('/report/daily', [ReportController::class, 'daily'])->name('report.daily');
+        Route::get('/report/weekly', [ReportController::class, 'weekly'])->name('report.weekly');
+        Route::get('/report/monthly', [ReportController::class, 'monthly'])->name('report.monthly');
+
+        // New admin profile route
+        Route::get('/profile', function () {
+            return view('admin.profile');
+        })->name('profile');
+    });
+});
 
 // Collector Authentication Routes
 Route::prefix('collector')->name('collector.')->group(function () {
     // Public routes
+    Route::get('/', function () {
+        return Auth::guard('collector')->check()
+            ? redirect()->route('collector.dashboard')
+            : redirect()->route('collector.login');
+    });
     Route::get('/login', [CollectorAuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [CollectorAuthController::class, 'login']);
-    Route::post('/logout', [CollectorAuthController::class, 'logout'])->name('logout');
+    Route::get('/logout', [CollectorAuthController::class, 'logout'])->name('logout');
 
     // Protected routes (require collector authentication)
     Route::middleware('auth:collector')->group(function () {

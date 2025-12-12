@@ -97,11 +97,13 @@
             <i class="bi bi-house"></i> Home
           </a>
         </li>
+        @can('isAdmin')
         <li class="nav-item">
           <a class="nav-link @if(request()->routeIs('collections.*')) active fw-semibold @endif" href="{{ route('collections.index') }}">
             <i class="bi bi-list-ul"></i> Collections
           </a>
         </li>
+        @endcan
         <li class="nav-item">
           <a class="nav-link @if(request()->routeIs('parties.*')) active fw-semibold @endif" href="{{ route('parties.index') }}">
             <i class="bi bi-people"></i> Parties
@@ -122,6 +124,28 @@
             <i class="bi bi-shop"></i> Shops
           </a>
         </li>
+        @auth
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle d-flex align-items-center @if(request()->routeIs('profile')) active fw-semibold @endif"
+             href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person-circle"></i>
+            <span style="margin-left:5px;">{{ Auth::user()->name }}</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+            <li>
+              <a class="dropdown-item" href="{{ route('profile') }}">
+                <i class="bi bi-person-badge"></i> Profile
+              </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item" href="{{ route('logout') }}">
+                <i class="bi bi-box-arrow-right"></i> Logout
+              </a>
+            </li>
+          </ul>
+        </li>
+        @endauth
       </ul>
     </div>
   </div>

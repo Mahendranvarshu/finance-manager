@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\CollectorCreated;
 use App\Http\Requests\CollectorRequest;
 use App\Models\Collector;
 use Illuminate\Http\Request;
@@ -56,8 +57,8 @@ class CollectorController extends Controller
             $data['password'] = Hash::make($data['password']);
         }
 
-        Collector::create($data);
-
+        $collector = Collector::create($data);
+        event(new CollectorCreated($collector));
         return redirect()->route('collectors.index')
             ->with('success', 'Collector created successfully.');
     }

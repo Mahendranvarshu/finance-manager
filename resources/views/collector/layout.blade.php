@@ -102,12 +102,9 @@
           </span>
         </li>
         <li class="nav-item">
-          <form action="{{ route('collector.logout') }}" method="POST" class="d-inline">
-            @csrf
-            <button type="submit" class="btn btn-outline-danger btn-sm px-2 py-1">
-              <i class="bi bi-box-arrow-right"></i> Logout
-            </button>
-          </form>
+          <a href="{{ route('collector.logout') }}" class="btn btn-outline-danger btn-sm px-2 py-1">
+            <i class="bi bi-box-arrow-right"></i> Logout
+          </a>
         </li>
       </ul>
     </div>

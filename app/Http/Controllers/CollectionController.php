@@ -8,6 +8,7 @@ use App\Models\Collector;
 use App\Models\Party;
 use App\Services\LoanCalculator;
 use Carbon\Carbon;
+use Gate;
 use Illuminate\Http\Request;
 
 class CollectionController extends Controller
@@ -44,7 +45,14 @@ class CollectionController extends Controller
         $parties = Party::where('status', 'active')->get();
         $collectors = Collector::where('status', 'active')->get();
 
-        return view('collections.index', compact('collections', 'parties', 'collectors'));
+        if (Gate::allows('isAdmin')) {
+            // If allowed, show dashboard
+           
+            return view('collections.index', compact('collections', 'parties', 'collectors'));
+        }
+    
+        // If not allowed, throw 403 Access Denied
+        abort(403, "You are not authorized to access this page.");
     }
 
     /**
