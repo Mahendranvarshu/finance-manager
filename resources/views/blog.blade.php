@@ -5,7 +5,7 @@ $blog = [
     'short_description' => "NVIDIA has announced the Phoenix X2 chipset with 4nm technology and AI-native acceleration. Explore what this means for computers, gamers, and the future.",
     'image_url' => "https://www.technewsworld.com/wp-content/uploads/sites/3/2025/12/Nvidia-house-of-cards.jpg"
 ];
-$blogUrl = "https://yourwebsite.com/blog.php?id=" . $blog['id'];
+$blogUrl = "https://finance-manager-main-wonvyi.laravel.cloud/blog";
 ?>
 
 <!DOCTYPE html>
